@@ -54,7 +54,7 @@ const LoginPage = () => {
       const data = await response.json();
       if(data.success == true){
         sessionStorage.setItem("authToken", data.token);
-        toast.error(data.message)
+       // toast.error(data.message)
         toast.done(data.message);
         window.location.href = "/main/dashboard"
 

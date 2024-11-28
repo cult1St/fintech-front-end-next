@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
@@ -90,7 +91,10 @@ const Dashboard = () => {
               </li>
             ))}
           </ul>
-        </div>
+          <Link className='bg-blue-600 text-white rounded-sm p-2' href='/main/link_account'>
+            Link An Acount
+          </Link>
+        </div> 
 
         {/* Transaction History */}
         <div className="bg-green-100 rounded-lg p-4">
