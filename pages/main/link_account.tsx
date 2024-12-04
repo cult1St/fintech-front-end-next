@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect, useState, useRef } from "react";
 import $ from "jquery";
 import "select2/dist/css/select2.min.css";
@@ -23,9 +20,9 @@ const LinkBankAccount = () => {
           },
         });
         if (!response.ok) {
-           toast.error("Unable to load banks. Check ur network");
-           setLoading(false);
-           setTimeout(() => (window.location.href = "/main/dashboard"), 1000);
+          toast.error("Unable to load banks. Check ur network");
+          setLoading(false);
+          setTimeout(() => (window.location.href = "/main/dashboard"), 1000);
         }
         const data = await response.json();
         setBanks(data || []); // Assuming `data.banks` contains the list of banks
@@ -109,7 +106,7 @@ const LinkBankAccount = () => {
       } else {
         const data = await response.json();
         console.log(data);
-        console.log(formData)
+        console.log(formData);
         setFormData({
           ...updatedFormData,
           accountHolderName: data.data.account_name,
@@ -121,10 +118,49 @@ const LinkBankAccount = () => {
     }
   };
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Bank details:", formData);
+    const auth_token = sessionStorage.getItem("authToken");
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/user/link_bank-account",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + auth_token,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        if (errorData.errors) {
+          Object.keys(errorData.errors).forEach((field) => {
+            errorData.errors[field].forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        } else {
+          toast.error(errorData.message || "Login failed");
+        }
+
+        //throw new Error("Network response was not ok");
+      } else {
+        const data = await response.json();
+        if (data.success == true) {
+          sessionStorage.setItem("authToken", data.token);
+          // toast.error(data.message)
+          toast.done(data.message);
+          window.location.href = "/main/dashboard";
+        }
+        console.log("Login successful:", data);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   if (loading) {
@@ -184,7 +220,7 @@ const LinkBankAccount = () => {
             <input
               type="text"
               name="accountHolderName"
-             readOnly
+              readOnly
               value={formData.accountHolderName}
               required
               className="w-full px-4 py-2 mt-1 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
